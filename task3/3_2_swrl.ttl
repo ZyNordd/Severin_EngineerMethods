@@ -1,0 +1,179 @@
+@prefix : <http://example.org/ontology/task3/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix swrl: <http://www.w3.org/2003/11/swrl#> .
+@prefix swrla: <http://swrl.stanford.edu/ontologies/3.3/swrla.owl#> .
+@base <http://example.org/ontology/task3/> .
+
+<http://example.org/ontology/task3> rdf:type owl:Ontology .
+
+#################################################################
+#    Annotation properties
+#################################################################
+
+###  http://swrl.stanford.edu/ontologies/3.3/swrla.owl#isRuleEnabled
+swrla:isRuleEnabled rdf:type owl:AnnotationProperty .
+
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://example.org/ontology/task3/включает
+:включает rdf:type owl:ObjectProperty ,
+                   owl:TransitiveProperty ;
+          rdfs:domain :ОбразовательнаяПрограмма ;
+          rdfs:range :Предмет .
+
+
+###  http://example.org/ontology/task3/имеет_автора
+:имеет_автора rdf:type owl:ObjectProperty ;
+              rdfs:domain :Обращение ;
+              rdfs:range :Студент .
+
+
+###  http://example.org/ontology/task3/обращается_к
+:обращается_к rdf:type owl:ObjectProperty ;
+              rdfs:domain :Обращение ;
+              rdfs:range :ЭлектронныйОбрРесурс .
+
+
+###  http://example.org/ontology/task3/обучается_на_программе
+:обучается_на_программе rdf:type owl:ObjectProperty ;
+                        rdfs:domain :Студент ;
+                        rdfs:range :ОбразовательнаяПрограмма .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://example.org/ontology/task3/ВалидныйЗапрос
+:ВалидныйЗапрос rdf:type owl:Class .
+
+
+###  http://example.org/ontology/task3/ОбразовательнаяПрограмма
+:ОбразовательнаяПрограмма rdf:type owl:Class .
+
+
+###  http://example.org/ontology/task3/Обращение
+:Обращение rdf:type owl:Class .
+
+
+###  http://example.org/ontology/task3/Предмет
+:Предмет rdf:type owl:Class .
+
+
+###  http://example.org/ontology/task3/Студент
+:Студент rdf:type owl:Class .
+
+
+###  http://example.org/ontology/task3/ЭлектронныйОбрРесурс
+:ЭлектронныйОбрРесурс rdf:type owl:Class .
+
+
+#################################################################
+#    Individuals
+#################################################################
+
+###  http://example.org/ontology/task3/Иван_Петров
+:Иван_Петров rdf:type owl:NamedIndividual ,
+                      :Студент ;
+             :обучается_на_программе :Прикладная_информатика .
+
+
+###  http://example.org/ontology/task3/Инструменты_проектирования_онтологий
+:Инструменты_проектирования_онтологий rdf:type owl:NamedIndividual ,
+                                               :ЭлектронныйОбрРесурс .
+
+
+###  http://example.org/ontology/task3/Прикладная_информатика
+:Прикладная_информатика rdf:type owl:NamedIndividual ,
+                                 :ОбразовательнаяПрограмма ;
+                        :включает :Программирование .
+
+
+###  http://example.org/ontology/task3/Программирование
+:Программирование rdf:type owl:NamedIndividual ,
+                           :Предмет ;
+                  :включает :Инструменты_проектирования_онтологий .
+
+
+###  http://example.org/ontology/task3/запрос-1
+:запрос-1 rdf:type owl:NamedIndividual ,
+                   :Обращение ;
+          :имеет_автора :Иван_Петров ;
+          :обращается_к :Инструменты_проектирования_онтологий .
+
+
+[ swrla:isRuleEnabled "true"^^xsd:boolean
+] .
+
+#################################################################
+#    Rules
+#################################################################
+
+:Q rdf:type swrl:Variable .
+
+:S rdf:type swrl:Variable .
+
+:P rdf:type swrl:Variable .
+
+:R rdf:type swrl:Variable .
+
+[ rdfs:label "Rule: classify valid query" ;
+   rdf:type swrl:Imp ;
+   swrl:body [ rdf:type swrl:AtomList ;
+               rdf:first [ rdf:type swrl:ClassAtom ;
+                           swrl:classPredicate :Обращение ;
+                           swrl:argument1 :Q
+                         ] ;
+               rdf:rest [ rdf:type swrl:AtomList ;
+                          rdf:first [ rdf:type swrl:IndividualPropertyAtom ;
+                                      swrl:propertyPredicate :имеет_автора ;
+                                      swrl:argument1 :Q ;
+                                      swrl:argument2 :S
+                                    ] ;
+                          rdf:rest [ rdf:type swrl:AtomList ;
+                                     rdf:first [ rdf:type swrl:IndividualPropertyAtom ;
+                                                 swrl:propertyPredicate :обучается_на_программе ;
+                                                 swrl:argument1 :S ;
+                                                 swrl:argument2 :P
+                                               ] ;
+                                     rdf:rest [ rdf:type swrl:AtomList ;
+                                                rdf:first [ rdf:type swrl:IndividualPropertyAtom ;
+                                                            swrl:propertyPredicate :включает ;
+                                                            swrl:argument1 :P ;
+                                                            swrl:argument2 :R
+                                                          ] ;
+                                                rdf:rest [ rdf:type swrl:AtomList ;
+                                                           rdf:first [ rdf:type swrl:IndividualPropertyAtom ;
+                                                                       swrl:propertyPredicate :обращается_к ;
+                                                                       swrl:argument1 :Q ;
+                                                                       swrl:argument2 :R
+                                                                     ] ;
+                                                           rdf:rest [ rdf:type swrl:AtomList ;
+                                                                      rdf:first [ rdf:type swrl:ClassAtom ;
+                                                                                  swrl:classPredicate :ЭлектронныйОбрРесурс ;
+                                                                                  swrl:argument1 :R
+                                                                                ] ;
+                                                                      rdf:rest rdf:nil
+                                                                    ]
+                                                         ]
+                                              ]
+                                   ]
+                        ]
+             ] ;
+   swrl:head [ rdf:type swrl:AtomList ;
+               rdf:first [ rdf:type swrl:ClassAtom ;
+                           swrl:classPredicate :ВалидныйЗапрос ;
+                           swrl:argument1 :Q
+                         ] ;
+               rdf:rest rdf:nil
+             ]
+ ] .
+
+###  Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi
